@@ -1,0 +1,41 @@
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const { TaskService } = require("../src/application/TaskService");
+const { InMemoryTaskRepository } = require("../src/infrastructure/InMemoryTaskRepository");
+const { ValidationError, NotFoundError } = require("../src/domain/errors");
+const { createApp } = require("../src/app");
+test("negocio independiente de Express y persistencia concreta", () => {
+  let received;
+  const service = new TaskService({ create(task) { received = task; return { ...task, id: 9 }; } });
+  const task = service.createTask({ title: "  Estudiar  " });
+  assert.equal(task.id, 9); assert.equal(received.title, "Estudiar");
+  assert.equal(received.status, "pendiente"); assert.ok(received.createdAt);
+  assert.throws(() => service.createTask({ title: "ab" }), ValidationError);
+});
+test("estados, inexistencia y aislamiento de los datos", () => {
+  const repo = new InMemoryTaskRepository(); const service = new TaskService(repo);
+  const task = service.createTask({ title: "Prueba" });
+  assert.equal(service.changeStatus(task.id, "finalizada").status, "finalizada");
+  assert.throws(() => service.changeStatus(task.id, "otro"), ValidationError);
+  assert.throws(() => service.changeStatus(999, "pendiente"), NotFoundError);
+  repo.findAll()[0].title = "Alterado";
+  assert.equal(service.listTasks()[0].title, "Prueba");
+});
+test("API completa y entrega del frontend", async t => {
+  const server = createApp({ repository: new InMemoryTaskRepository() }).listen(0, "127.0.0.1");
+  await new Promise(resolve => server.once("listening", resolve));
+  t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
+  const url = `http://127.0.0.1:${server.address().port}`;
+  const call = (path, method = "GET", body) => fetch(url + path, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  assert.equal((await call("/api/health")).status, 200);
+  assert.deepEqual(await (await call("/api/tasks")).json(), []);
+  let response = await call("/api/tasks", "POST", { title: "Nueva tarea" });
+  assert.equal(response.status, 201); const task = await response.json();
+  response = await call(`/api/tasks/${task.id}/status`, "PATCH", { status: "en progreso" });
+  assert.equal((await response.json()).status, "en progreso");
+  assert.equal((await call("/api/tasks", "POST", { title: "x" })).status, 400);
+  assert.equal((await call(`/api/tasks/${task.id}/status`, "PATCH", { status: "mal" })).status, 400);
+  assert.equal((await call("/api/tasks/999/status", "PATCH", { status: "pendiente" })).status, 404);
+  assert.match(await (await call("/")).text(), /type="module"/);
+  assert.equal((await call("/src/api.js")).status, 200);
+});
