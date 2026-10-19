@@ -1,50 +1,57 @@
-# Guía 05: Arquitectura y organización del software
+# Guía 5 - Arquitectura y organización del software
 
-SENA - ADSO. Instructor: Cristian González. Fecha: 19 de octubre de 2026.
-Agregar nombres de los integrantes y ficha antes de entregar.
+SENA - ADSO
+Instructor: Cristian González
 
-## 3.1 Contextualización
+## 3.1 Preguntas iniciales
 
-Modificar una regla de negocio en un archivo de 3.000 líneas que mezcla SQL, interfaz y validaciones aumenta el riesgo de afectar funciones ajenas al cambio. Es difícil localizar errores y probar cada responsabilidad por separado.
+**¿Qué problemas habría al cambiar una regla de negocio en un archivo de 3.000 líneas?**
 
-En equipo se producirían conflictos frecuentes al editar el mismo archivo, revisiones extensas y dificultad para distribuir tareas. Separar responsabilidades facilita comprender el código, detectar regresiones y mantener la aplicación.
+Sería complicado encontrar qué parte hay que cambiar. Como todo está junto, uno puede arreglar una cosa y dañar otra sin darse cuenta. También tocaría revisar bastante código para entender cómo funciona.
 
-La organización interna influye en la calidad porque permite verificar reglas aisladas, reemplazar componentes y corregir errores con un alcance controlado.
+**¿Cómo afectaría el trabajo en equipo?**
 
-## 3.2 Conceptualización
+Si varias personas trabajan en el mismo archivo, se pueden cruzar los cambios. Sería difícil repartir el trabajo porque todos estarían tocando casi lo mismo.
 
-| Concepto | Explicación |
-| --- | --- |
-| Separación de responsabilidades | Cada módulo tiene una función definida y un motivo claro para cambiar. |
-| Arquitectura por capas | Agrupa presentación, negocio y persistencia con límites explícitos. |
-| MVC | El modelo representa datos y reglas; la vista presenta información; el controlador atiende acciones. |
-| Clean Architecture | Las políticas del negocio son independientes de frameworks, interfaces y almacenamiento. |
-| Modularidad | División del sistema en componentes con contratos claros. |
-| Cohesión | Relación entre las funciones de un módulo. Es alta cuando todas sirven al mismo propósito. |
-| Acoplamiento | Dependencia entre componentes. La inyección de dependencias facilita sustituir implementaciones. |
-| Deuda técnica | Costo futuro de decisiones que dificultan mantener el sistema. |
+**¿Cómo influye el orden del código en la calidad?**
 
-## 3.3 Demostración
+Si el código está organizado, es más fácil entenderlo, probarlo y corregir errores. Si todo está mezclado, hasta un cambio pequeño termina tomando más tiempo.
 
-Procedimiento de referencia, sin afirmar asistencia a una demostración: identificar responsabilidades mezcladas, extraer entidades y servicios, aislar persistencia y presentación, conectar mediante inyección de dependencias y verificar las reglas con un repositorio sustituto.
+## 3.2 Conceptos
+
+- **Separación de responsabilidades:** que cada parte del código se encargue de algo concreto.
+- **Arquitectura por capas:** separar la interfaz, las reglas de la aplicación y el acceso a los datos.
+- **MVC:** dividir el proyecto en modelo, vista y controlador. El modelo maneja datos y reglas, la vista muestra la información y el controlador recibe las acciones.
+- **Clean Architecture:** organizar el proyecto para que las reglas principales no dependan directamente de Express o de una base de datos.
+- **Modularidad:** dividir el código en partes que se puedan entender y trabajar por separado.
+- **Cohesión:** que lo que hay dentro de un módulo tenga relación con su función.
+- **Acoplamiento:** qué tanto depende una parte de otra. Si hay mucha dependencia, cambiar algo puede afectar varias partes.
+- **Deuda técnica:** problemas que se van dejando en el código y que después hacen más difícil seguir trabajando.
+
+## 3.3 Pasos de la refactorización
+
+La idea es revisar qué está haciendo cada archivo y separar lo que está mezclado. Después se organizan los modelos, los servicios, los controladores y el repositorio. Al final se prueba que la aplicación siga funcionando.
 
 ## 3.4 Taller práctico
 
-Fuente: https://github.com/crgonzalez3212/Guia5Arquitectura
+La base es el gestor de tareas del repositorio del profesor:
+https://github.com/crgonzalez3212/Guia5Arquitectura
 
-Commit analizado: cd058008b786008ea76703589ffa98c45a5bc63f.
+Versión usada: `cd058008b786008ea76703589ffa98c45a5bc63f`.
 
-El backend original ya tenía controlador, servicio, repositorio e inyección por constructor. No corresponde describirlo como un monolito sin separación. Los hallazgos reales son:
+### Problemas encontrados
 
-| Evidencia original | Problema | Solución |
-| --- | --- | --- |
-| frontend/src/app.js contiene fetch, HTML y eventos. | Mezcla transporte, presentación y coordinación. | Extraer api.js y view.js. |
-| taskService.js asigna statusCode 400 y 404. | El negocio conoce HTTP. | Errores ValidationError y NotFoundError traducidos por el adaptador HTTP. |
-| taskRepository.js construye entidades y carga ejemplos. | Mezcla almacenamiento, creación del modelo y configuración inicial. | El servicio construye Task; app.js configura semillas; el repositorio almacena. |
-| server.js configura e inicia el servidor. | Importarlo para probar abre un puerto. | Separar createApp y server.js. |
-| findAll copia el arreglo pero comparte sus objetos. | Se puede alterar el almacenamiento sin usar sus operaciones. | Devolver copias de los objetos. |
+El backend ya venía dividido en varios archivos. Lo que se mejoró fue la separación de algunas funciones:
 
-### Estructura propuesta e implementada
+1. En `frontend/src/app.js` estaban las peticiones a la API, el HTML de las tareas y los eventos de los botones. Se separaron en `api.js`, `view.js` y `app.js` para que cada archivo tenga su función.
+2. En `taskService.js` se usaban códigos HTTP como 400 y 404. Se cambiaron por errores de validación y de tarea no encontrada. La parte HTTP es la que decide qué código devolver.
+3. El repositorio guardaba las tareas, creaba los objetos y además tenía los datos de ejemplo. Ahora el servicio crea la tarea, el repositorio la guarda y los ejemplos se cargan desde `app.js`.
+4. `server.js` configuraba todo y también arrancaba el servidor. Se separó la configuración en `app.js` para poder hacer pruebas sin abrir un puerto apenas se importa el archivo.
+5. El listado devolvía una copia del arreglo, pero las tareas seguían siendo los mismos objetos. Ahora también se copian para evitar que se cambien los datos por fuera del repositorio.
+
+### Organización del proyecto
+
+Se usó una estructura basada en Clean Architecture. Las carpetas quedaron así:
 
 ```text
 backend/
@@ -83,15 +90,14 @@ flowchart LR
   Root -. conecta .-> Service
 ```
 
-Es una estructura inspirada en Clean Architecture. El servicio no importa Express ni el repositorio concreto. En JavaScript el contrato del repositorio es estructural: findAll(), create(task), findById(id) y updateStatus(id, status). Las operaciones son síncronas; una futura base de datos asíncrona requerirá adaptar el contrato y sus consumidores.
 
-La entidad representa la tarea; el servicio coordina creación y cambio de estado; el controlador recibe peticiones; el repositorio almacena. app.js es el punto de composición que conoce las implementaciones.
+`Task` representa una tarea. `TaskService` maneja las operaciones de crear, listar y cambiar el estado. El controlador recibe las peticiones y el repositorio guarda los datos.
 
-### Comportamiento y ejecución
+El repositorio se le pasa al servicio al crearlo. Así se puede probar el servicio con otro repositorio sin cambiar su código. Por ahora funciona en memoria. Si se conecta una base de datos con operaciones asíncronas, también habría que adaptar las llamadas del servicio y del controlador.
 
-Se mantienen GET /api/health, GET y POST /api/tasks y PATCH /api/tasks/:id/status. El título exige tres caracteres después de quitar espacios. Los estados admitidos son pendiente, en progreso y finalizada. Las tareas nuevas inician pendientes.
+### Cómo ejecutar
 
-Desde backend, con Node.js y npm disponibles:
+Desde la carpeta `backend`:
 
 ```sh
 npm ci
@@ -99,54 +105,56 @@ npm test
 npm start
 ```
 
-Abrir http://localhost:3000. La interfaz ahora se sirve desde Express y usa /api/tasks sin fijar la dirección del servidor. El puerto puede configurarse con PORT. Los datos siguen en memoria y se pierden al detener el proceso.
+Después se abre http://localhost:3000.
 
-### Verificación ejecutada
+La aplicación permite listar tareas, crear una nueva y cambiar su estado. El título debe tener al menos tres caracteres sin contar los espacios de los extremos. Los estados son pendiente, en progreso y finalizada.
 
-Resultado real: tres pruebas aprobadas y cero fallidas con node --test.
+Se conservaron estas rutas:
 
-1. Negocio con repositorio sustituto: normalización del título, creación de entidad, estado inicial y rechazo de título corto, sin requerir servidor ni almacenamiento concreto.
-2. Estados y repositorio: actualización válida, estado inválido, tarea inexistente y protección contra modificaciones externas de los datos devueltos.
-3. Integración HTTP: salud, listado vacío, creación 201, actualización, errores 400 y 404, entrega del HTML y del módulo del cliente.
+- `GET /api/health`
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `PATCH /api/tasks/:id/status`
 
-La interfaz se verificó en navegador: conexión con API, creación de la tarea Verificar entrega, cambio a finalizada y rechazo de un título compuesto por espacios. La captura real se incluye en docs/verificacion-interfaz.png.
+Los datos se borran cuando se apaga el servidor porque todavía se guardan en memoria.
 
-## 3.5 Socialización y revisión
+### Pruebas
 
-La revisión corresponde a Cristian según la indicación recibida. No se registra una aprobación todavía inexistente.
+Se ejecutaron tres pruebas automáticas y las tres pasaron:
 
-Se redujo el acoplamiento retirando HTTP del servicio, inyectando almacenamiento y separando transporte, vista y eventos. La nueva estructura facilita el aseguramiento de calidad porque permite pruebas aisladas, módulos pequeños y cambios con responsabilidades identificables.
+1. Crear una tarea con un repositorio de prueba y revisar que se valide el título y que inicie pendiente.
+2. Cambiar el estado, rechazar estados incorrectos, buscar una tarea que no existe y revisar que el listado no permita cambiar los datos guardados por fuera del repositorio.
+3. Probar las rutas HTTP, las respuestas de error y la entrega de los archivos del frontend.
 
-Propuesta para los 15 minutos: tres minutos de hallazgos, cuatro del diagrama, cuatro de ejecución y pruebas, y cuatro de preguntas del instructor.
+También se probó desde el navegador: se creó la tarea Verificar entrega, se cambió a finalizada y se intentó crear otra con solo espacios en el título. La aplicación mostró el error correspondiente.
 
-### Publicación y revisión en GitHub
+La captura está en `docs/verificacion-interfaz.png`.
 
-- Repositorio publicado en la cuenta del aprendiz: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura.
-- main conserva la base; refactor/arquitectura contiene la solución.
-- Pull Request abierto: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura/pull/1.
-- Invitación de colaborador con permiso de escritura enviada a crgonzalez3212; pendiente de aceptación.
-- GitHub rechazó la asignación formal de revisor porque todavía no ha aceptado la invitación. Cuando la acepte, solicitar su revisión desde Reviewers.
-- No fusionar antes de recibir y atender las observaciones reales del instructor.
+## 3.5 Revisión de código
 
-Lista para la revisión:
+**¿Cómo se redujo el acoplamiento?**
 
-- [ ] Servicio sin dependencias de Express ni almacenamiento concreto.
-- [ ] Controladores sin reglas de negocio ni persistencia.
-- [ ] Repositorio dedicado al almacenamiento.
-- [ ] Transporte, vista y eventos separados.
-- [x] Pruebas aprobadas y verificación manual realizada.
-- [x] Diagrama consistente con el código.
-- [x] Instructor invitado como colaborador.
-- [ ] Invitación aceptada y asignación formal como revisor completada.
-- [ ] Observaciones reales atendidas.
+Se separaron las peticiones, la vista y los eventos del frontend. En el backend, el servicio dejó de manejar códigos HTTP y recibe el repositorio como dependencia. Así cada parte necesita conocer menos detalles de las otras.
 
-## 3.6 Cierre
+**¿Por qué esto ayuda a la calidad del software?**
 
-La calidad arquitectónica depende de límites verificables, además de organizar carpetas. La refactorización conserva las funciones del gestor y mejora la independencia del negocio, la cohesión y la facilidad de prueba. El almacenamiento en memoria sigue siendo una limitación explícita.
+Porque es más fácil revisar una parte sin tener que entender toda la aplicación. También se pueden probar las reglas por separado y encontrar más rápido dónde está un error.
 
-## Referencias
+El trabajo quedó en este repositorio:
+https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura
 
-- Guía de aprendizaje 05, SENA, documento suministrado.
-- Repositorio Guia5Arquitectura, commit identificado arriba.
-- Martin, R. C. (2017). Clean Architecture. Prentice Hall. Referencia conceptual de la guía.
-- Fowler, M. (2018). Refactoring, segunda edición. Addison-Wesley. Referencia conceptual de la guía.
+En `main` está la base y en `refactor/arquitectura` están los cambios.
+
+Pull Request para la revisión:
+https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura/pull/1
+
+Se envió la invitación de colaborador al profesor, `crgonzalez3212`. Falta que la acepte para poder seleccionarlo como revisor. El Pull Request sigue abierto.
+
+## 3.6 Conclusión
+
+Separar el código ayuda a que el proyecto se entienda mejor y sea más fácil de corregir. La aplicación sigue haciendo lo mismo, pero ahora cada archivo tiene una función más clara y las pruebas permiten revisar que los cambios no dañen lo que ya funciona.
+
+## Fuentes
+
+- Guía de aprendizaje 5 entregada por el profesor.
+- Repositorio base de Cristian González, enlazado en el punto 3.4.

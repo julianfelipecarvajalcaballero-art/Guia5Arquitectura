@@ -1,17 +1,29 @@
-# Guía 05 - Gestor de tareas
+# Guía 5 - Arquitectura de software
 
-Consultar GUIA_RESUELTA.md para respuestas, análisis, estructura y verificación.
+Este es el gestor de tareas del taller, organizado por capas. Las respuestas, el diagrama y la explicación de los cambios están en [GUIA_RESUELTA.md](GUIA_RESUELTA.md).
 
-Desde backend: ejecutar npm ci, npm test y npm start. Abrir http://localhost:3000.
+## Para ejecutarlo
 
-Los datos se guardan en memoria y se reinician al detener el servidor.
+Entrar a `backend` y ejecutar:
 
-Repositorio: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura.
+```sh
+npm ci
+npm test
+npm start
+```
 
-La rama main conserva la base; refactor/arquitectura contiene la entrega. La revisión del instructor está pendiente.
+Abrir http://localhost:3000. Los datos se guardan en memoria y se borran al apagar el servidor.
 
-La interfaz fue verificada en navegador: creación, cambio de estado y validación. Evidencia: docs/verificacion-interfaz.png.
+## Cambios
 
-Pull Request: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura/pull/1.
+Se separaron el modelo, el servicio, el controlador y el repositorio. En el frontend se dejaron aparte las peticiones, la vista y los eventos.
 
-Invitación enviada a crgonzalez3212. GitHub permitirá asignarlo como revisor cuando acepte.
+Las tres pruebas automáticas pasaron. También se probó crear una tarea, cambiar su estado y validar el título desde el navegador. La captura está en `docs/verificacion-interfaz.png`.
+
+## Revisión
+
+En `main` está el código base y en `refactor/arquitectura` están los cambios.
+
+[Pull Request para el profesor](https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura/pull/1). La invitación a `crgonzalez3212` está enviada; falta que la acepte para asignarlo como revisor.
+
+Base del taller: https://github.com/crgonzalez3212/Guia5Arquitectura
