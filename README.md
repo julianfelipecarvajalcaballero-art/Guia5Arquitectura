@@ -1,5 +1,10 @@
 # Guía 5 - Arquitectura de software
 
+Aprendiz: Julián Felipe Carvajal Caballero
+
+Ficha: 3171618
+
+GitHub: @julianfelipecarvajalcaballero-art
 Este es el gestor de tareas del taller, organizado por capas. Las respuestas, el diagrama y la explicación de los cambios están en [GUIA_RESUELTA.md](GUIA_RESUELTA.md).
 
 ## Para ejecutarlo

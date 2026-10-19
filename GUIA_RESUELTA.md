@@ -1,5 +1,10 @@
 # Guía 5 - Arquitectura y organización del software
 
+Aprendiz: Julián Felipe Carvajal Caballero
+
+Ficha: 3171618
+
+GitHub: @julianfelipecarvajalcaballero-art
 SENA - ADSO
 Instructor: Cristian González
 
