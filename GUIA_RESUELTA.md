@@ -121,13 +121,12 @@ Propuesta para los 15 minutos: tres minutos de hallazgos, cuatro del diagrama, c
 
 ### Publicación y revisión en GitHub
 
-1. Crear un repositorio propio con el código base en main.
-2. Publicar los cambios en refactor/arquitectura.
-3. En Settings > Collaborators, invitar la cuenta confirmada del instructor. El propietario del repositorio fuente es crgonzalez3212; confirmar que sea la cuenta destinataria.
-4. Tras aceptar la invitación, abrir un Pull Request hacia main y solicitar la revisión en Reviewers.
-5. Mantener el Pull Request abierto hasta recibir la revisión, registrar observaciones y aplicar las correcciones.
-
-Repositorio de entrega: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura. La rama main conserva el código base y refactor/arquitectura contiene la solución. La revisión del instructor sigue pendiente; consultar el Pull Request para el estado real de la solicitud y las observaciones.
+- Repositorio publicado en la cuenta del aprendiz: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura.
+- main conserva la base; refactor/arquitectura contiene la solución.
+- Pull Request abierto: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura/pull/1.
+- Invitación de colaborador con permiso de escritura enviada a crgonzalez3212; pendiente de aceptación.
+- GitHub rechazó la asignación formal de revisor porque todavía no ha aceptado la invitación. Cuando la acepte, solicitar su revisión desde Reviewers.
+- No fusionar antes de recibir y atender las observaciones reales del instructor.
 
 Lista para la revisión:
 
@@ -137,7 +136,8 @@ Lista para la revisión:
 - [ ] Transporte, vista y eventos separados.
 - [x] Pruebas aprobadas y verificación manual realizada.
 - [x] Diagrama consistente con el código.
-- [ ] Instructor invitado y revisión solicitada.
+- [x] Instructor invitado como colaborador.
+- [ ] Invitación aceptada y asignación formal como revisor completada.
 - [ ] Observaciones reales atendidas.
 
 ## 3.6 Cierre

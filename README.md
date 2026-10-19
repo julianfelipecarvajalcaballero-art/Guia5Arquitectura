@@ -11,3 +11,7 @@ Repositorio: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitect
 La rama main conserva la base; refactor/arquitectura contiene la entrega. La revisión del instructor está pendiente.
 
 La interfaz fue verificada en navegador: creación, cambio de estado y validación. Evidencia: docs/verificacion-interfaz.png.
+
+Pull Request: https://github.com/julianfelipecarvajalcaballero-art/Guia5Arquitectura/pull/1.
+
+Invitación enviada a crgonzalez3212. GitHub permitirá asignarlo como revisor cuando acepte.
